@@ -47,9 +47,11 @@ while (true){
                     continue;
                 }
                 $game->deployArmies($territory, $numReserves);
-                updateGame();
+                print "here\n";
+                //updateGame();
                 break;
             }
+            
             
             //$weakestTerritory = $myTerritories[$numTerritories-1];
             
@@ -61,6 +63,8 @@ while (true){
             do{
                 //print "Checking for (more) attacks\n";
                 $attackMade = false;
+                $myTerritories = sortTerritories(getMyTerritoryIds());
+                print "here1\n";
                 foreach($myTerritories as $territory){
                     
                     if( $game->checkReady() == "gameOver"){

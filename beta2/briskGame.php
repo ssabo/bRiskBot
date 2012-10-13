@@ -36,8 +36,7 @@ class BriskGame {
         return $response;
     }
     
-    public function getPlayerId()
-    {
+    public function getPlayerId() {
         return $this->player;
     }
     

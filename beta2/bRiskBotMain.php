@@ -3,7 +3,27 @@
 require_once("bRiskGameCtrl.php");
 require_once("bRiskBotFunctions.php");
 
-$game = new briskGameCtrl("SSabo", 0);
+$gameInfo = array();
+
+$options = getopt('g:b:n:');
+if (isset($options['g'])){
+    $gameInfo['game'] = $options['g'];
+    print "Using game ID ".$gameInfo['game']."\n";
+}
+
+if (isset($options['b'])){
+    $gameInfo['no_bot'] = true;
+    print "Not joining a bot game\n";
+}
+
+if(isset($options['n'])){
+    $teamName = $options['n'];
+}
+else{
+    $teamName = "SSabo";
+}
+
+$game = new briskGameCtrl($teamName,$gameInfo, 0);
 
 $gameOver = false;
 do{

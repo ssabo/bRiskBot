@@ -65,9 +65,21 @@ class bRiskGameCtrl{
         $this->playerState = $this->makeAction('',$suffix);
     }
     #construct the game object and update game states
-    public function __construct($teamName, $debugLevel = 0) {
+    public function __construct($teamName, $joinInfo = array(), $debugLevel = 0) {
         $this->setDebug($debugLevel);
-        $data = json_encode(array( "join" => true,"team_name" => $teamName ));
+        
+        $joinData = array("join"=>true, "team_name"=>$teamName);
+        if( isset( $joinInfo['game'] ) ){
+            $joinData['game'] = $joinInfo['game'];
+            print "The game you are creating is for gameID ".$joinData['game']."\n";
+        }
+        
+        if( isset( $joinInfo['no_bot'])){
+            $joinData['no_bot'] = $joinInfo['no_bot'];
+            print "The game you are creating will not have a bot\n";
+        }
+        
+        $data = json_encode($joinData);
         $this->gameObj = $this->makeAction($data);
         sleep(1);
         $this->updateGame();

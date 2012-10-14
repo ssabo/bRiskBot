@@ -85,6 +85,7 @@ class bRiskGameCtrl{
         $this->updateGame();
         $this->updateMapLayout();
         print "Starting game ".$this->gameObj->game." as player ".$this->gameObj->player."\n";
+        print "GameURL: http://boxcodingchallenge.com/brisk/map.php?game=".$this->gameObj->game."\n";
     }
     
     #force the game states to update (game and player)

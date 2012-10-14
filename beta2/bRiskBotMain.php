@@ -52,21 +52,30 @@ do{
             $myTerritories = sortTerritories($tmpTerritories, "strongestFirst");
             
             #search for your weakest territory with enemies
-            foreach(array_reverse($myTerritories) as $territory) {
-                #get this territory's id
-                $territoryId = $territory->territory;
+            do {
                 
-                #get the enemy adjacent territories sorted by weakest first
-                $enemies = getAdjacentEnemies($territoryId);
-                $numEnemies = count($enemies);
-                if ($numEnemies == 0){
-                    continue;
+                $tmpTerritories = $game->getPlayerState()->territories;
+                $myTerritories = sortTerritories($tmpTerritories, "weakestFirst");
+                //var_dump($myTerritories);
+                
+                foreach($myTerritories as $territory){
+                    $territoryId = $territory->territory;
+                    
+                    $enemies = getAdjacentEnemies($territoryId);
+                    
+                    $numEnemies = count($enemies);
+                    if($numEnemies == 0){
+                        continue;
+                    }
+                    
+                    //$numDeploy = ceil(sqrt($game->getPlayerState()->num_reserves));
+                    $numDeploy = ceil($game->getPlayerState()->num_reserves * .9);
+                    
+                    $move = $game->deployArmies($territoryId,$numDeploy);
+                    sleep(1);
+                    break;
                 }
-                
-                #if this territory has enemies deploy all armies here
-                $move = $game->deployArmies($territoryId, $numReserves);
-                break;
-            }
+            }while ($game->getPlayerState()->num_reserves > 0);
             
             
             print "Starting attacks\n";
@@ -91,9 +100,11 @@ do{
                     $numArmies = $territory->num_armies;
                     
                     #skip this territory if it is too week to attack
-                    if($numArmies <= 4){
+                    if($numArmies <= 2){
                         continue;
                     }
+                    
+                    $numAttackers = ($numArmies > 3) ? 3 : 2;
                     
                     #get the list of enemys adjacent
                     $enemies = sortTerritories(getAdjacentEnemies($territoryId), "weakestFirst" );
@@ -103,17 +114,26 @@ do{
                         continue;
                     }
                     
+                    
                     #get the weakest adjacent enemy
+                    
+                    
+                    
                     $weakestEnemy = $enemies[0];
+                    
+                    $localEnemies = getTerroriesInSameContinent($enemies,$territoryId);
+                    if(count($localEnemies) != 0){
+                        $weakestEnemy = $localEnemies[0];
+                    }
                     $numEnemyArmies = getTerritoryInfo($weakestEnemy)->num_armies;
                     
                     #if the enemy is too much stronger than this territory dont attack
-                    if ( $numArmies - $numEnemyArmies <= 2) {
+                    if ( $numArmies - $numEnemyArmies < 0) {
                         continue;
                     }
                     
                     #make an attack against the weakest enemy territory
-                    $attack = $game->attackTerritory($territoryId, $weakestEnemy, 3);
+                    $attack = $game->attackTerritory($territoryId, $weakestEnemy, $numAttackers);
                     $attackMade = true;
                     
                     #check if you won the attack
@@ -127,12 +147,12 @@ do{
                         
                         #if the attacking territory has less than 3 armies dont move your armies
                         $survivors = $attack->attacker_territory_armies_left;
-                        if($survivors < 3){
+                        if($survivors < 2){
                             break;
                         }
                         
                         #move all but 2 armies to the captured territory
-                        $move = $game->moveArmies($territoryId, $weakestEnemy, $survivors-2);
+                        $move = $game->moveArmies($territoryId, $weakestEnemy, $survivors-1);
                     }
                     #break out to re-evaluate map situation
                     break;
